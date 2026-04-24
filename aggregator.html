@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>매핑관리 | 물류팀</title>
+  <link rel="stylesheet" href="css/aggregator.css?v=20260425"/>
+  <link rel="stylesheet" href="css/nav.css?v=20260422"/>
+  <link rel="stylesheet" href="css/shared-header.css?v=20260426"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ── 헤더 ───────────────────────────────────────────────── -->
+<header class="gh-header">
+  <div class="gh-inner">
+    <div class="gh-logo">
+      <i class="fas fa-layer-group gh-logo-icon"></i>
+      <span class="gh-title">매핑관리</span>
+    </div>
+    <div class="gh-divider"></div>
+    <nav class="gh-nav">
+      <a href="index.html"          class="gh-btn gh-btn-main">  <i class="fas fa-house"></i>            <span>물류 업무</span></a>
+      <a href="duty.html"           class="gh-btn gh-btn-duty">  <i class="fas fa-list-check"></i>      <span>업무분장</span></a>
+      <a href="shipment.html"       class="gh-btn gh-btn-ship">  <i class="fas fa-box-open"></i>        <span>출고집계</span></a>
+      <span class="gh-btn gh-btn-agg gh-active">                 <i class="fas fa-layer-group"></i>     <span>매핑관리</span></span>
+      <a href="share.html"          class="gh-btn gh-btn-share"> <i class="fas fa-people-group"></i>    <span>팀원 공유</span></a>
+      <a href="flow/flowchart.html" class="gh-btn gh-btn-flow">  <i class="fas fa-diagram-project"></i> <span>플로우차트</span></a>
+   
+    </nav>
+  </div>
+</header>
+
+<!-- ── 탭 네비게이션 ───────────────────────────────────────── -->
+<nav class="ag-tab-nav">
+  <button class="ag-tab active" data-tab="upload"  onclick="switchTab('upload')">
+    <i class="fas fa-upload"></i> 파일 업로드 &amp; 집계
+  </button>
+  <button class="ag-tab"        data-tab="channel" onclick="switchTab('channel')">
+    <i class="fas fa-store"></i> 채널 관리
+  </button>
+  <button class="ag-tab"        data-tab="item"    onclick="switchTab('item')">
+    <i class="fas fa-boxes-stacked"></i> 품목 마스터
+  </button>
+  <button class="ag-tab"        data-tab="mapping" onclick="switchTab('mapping')">
+    <i class="fas fa-link"></i> 채널 매핑
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     탭 1 : 파일 업로드 & 집계
+     ══════════════════════════════════════════════════════════ -->
+<main class="ag-main" id="tab-upload">
+
+  <!-- 컬럼 안내 배너 -->
+  <div class="col-spec-banner">
+    <div class="col-spec-item">
+      <span class="col-spec-badge badge-own">공홈(자사몰)</span>
+      <span class="col-spec-text"><b>G열</b> 품명 &nbsp;·&nbsp; <b>H열</b> 수량</span>
+    </div>
+    <div class="col-spec-divider"></div>
+    <div class="col-spec-item">
+      <span class="col-spec-badge badge-sabang">사방넷</span>
+      <span class="col-spec-text"><b>A열</b> 쇼핑몰명 &nbsp;·&nbsp; <b>C열</b> 상품명 &nbsp;·&nbsp; <b>D열</b> 수량</span>
+    </div>
+    <div class="col-spec-note"><i class="fas fa-circle-info"></i> 열 순서가 다를 경우 엑셀에서 맞춰주세요.</div>
+  </div>
+
+  <!-- 파일 업로드 2개 -->
+  <div class="upload-grid">
+
+    <!-- 공홈 -->
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <span class="upload-card-title"><i class="fas fa-store"></i> 공홈(자사몰) 출고내역</span>
+        <span class="channel-badge badge-own">자사몰</span>
+      </div>
+      <div class="drop-zone" id="dropOwn"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event,'own')">
+        <input type="file" id="fileOwn" accept=".xlsx,.xls,.csv" style="display:none"
+               onchange="handleFile(event,'own')"/>
+        <div class="drop-icon"><i class="fas fa-file-excel"></i></div>
+        <div class="drop-text">엑셀 / CSV 드래그 또는 클릭</div>
+        <button class="drop-btn" onclick="document.getElementById('fileOwn').click()">
+          <i class="fas fa-folder-open"></i> 파일 선택
+        </button>
+      </div>
+      <div class="file-status" id="statusOwn" style="display:none">
+        <div class="file-info">
+          <i class="fas fa-file-check"></i>
+          <span id="fileOwnName"></span>
+          <button class="file-clear-btn" onclick="clearFile('own')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="col-info-wrap" id="colInfoOwn"></div>
+        <div class="preview-area"  id="previewOwn"></div>
+      </div>
+    </div>
+
+    <!-- 사방넷 -->
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <span class="upload-card-title"><i class="fas fa-shopping-cart"></i> 사방넷 출고내역</span>
+        <span class="channel-badge badge-sabang">사방넷</span>
+      </div>
+      <div class="drop-zone" id="dropSabang"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event,'sabang')">
+        <input type="file" id="fileSabang" accept=".xlsx,.xls,.csv" style="display:none"
+               onchange="handleFile(event,'sabang')"/>
+        <div class="drop-icon"><i class="fas fa-file-excel"></i></div>
+        <div class="drop-text">엑셀 / CSV 드래그 또는 클릭</div>
+        <button class="drop-btn" onclick="document.getElementById('fileSabang').click()">
+          <i class="fas fa-folder-open"></i> 파일 선택
+        </button>
+      </div>
+      <div class="file-status" id="statusSabang" style="display:none">
+        <div class="file-info">
+          <i class="fas fa-file-check"></i>
+          <span id="fileSabangName"></span>
+          <button class="file-clear-btn" onclick="clearFile('sabang')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="col-info-wrap" id="colInfoSabang"></div>
+        <div class="preview-area"  id="previewSabang"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 집계 실행 바 -->
+  <div class="run-bar">
+    <div class="run-bar-left">
+      <label class="run-label"><i class="fas fa-calendar"></i> 집계 날짜</label>
+      <input type="date" id="aggDate" class="run-date-input"/>
+    </div>
+    <button class="run-btn" onclick="runAggregation()">
+      <i class="fas fa-calculator"></i> 집계 실행
+    </button>
+  </div>
+
+  <!-- 집계 결과 -->
+  <section class="result-section" id="resultSection" style="display:none">
+    <div class="result-header">
+      <div class="result-title">
+        <i class="fas fa-table-list"></i>
+        집계 결과 <span class="result-date-label" id="resultDateLabel"></span>
+      </div>
+      <div class="result-actions">
+        <button class="result-btn btn-copy"       onclick="copyResult()">  <i class="fas fa-copy"></i>       클립보드 복사</button>
+        <button class="result-btn btn-export-xl"  onclick="exportExcel()"> <i class="fas fa-file-excel"></i>  엑셀 다운로드</button>
+        <button class="result-btn btn-unmatched"  onclick="showUnmatched()" id="btnUnmatched" style="display:none">
+          <i class="fas fa-triangle-exclamation"></i> 미매핑 <span id="unmatchedCnt"></span>건
+        </button>
+      </div>
+    </div>
+
+    <div class="result-kpi" id="resultKpi"></div>
+
+    <!-- 더존 출력 포맷 안내 -->
+    <div class="dozone-format-guide">
+      <i class="fas fa-circle-info"></i>
+      출력 컬럼: <b>채널명</b> &nbsp;|&nbsp; <b>더존코드</b> &nbsp;|&nbsp; <b>품번</b> &nbsp;|&nbsp; <b>품명</b> &nbsp;|&nbsp; <b>수량</b>
+      &nbsp;&nbsp;— 복사 후 구글 시트에 붙여넣기 하세요.
+    </div>
+
+    <div class="result-table-wrap">
+      <table class="ag-table" id="resultTable">
+        <thead><tr>
+          <th style="width:36px">No.</th>
+          <th>채널명</th>
+          <th style="width:90px">더존코드</th>
+          <th style="width:90px">품번</th>
+          <th>품명</th>
+          <th style="width:70px">수량</th>
+        </tr></thead>
+        <tbody id="resultBody"></tbody>
+        <tfoot  id="resultFoot"></tfoot>
+      </table>
+    </div>
+
+    <!-- 진단 패널 -->
+    <div class="diag-section" id="diagSection" style="display:none">
+      <div class="diag-header" onclick="toggleDiag()">
+        <i class="fas fa-bug"></i> 매핑 진단 정보
+        <span class="diag-toggle-hint">클릭하여 펼치기/접기</span>
+      </div>
+      <div class="diag-body" id="diagBody" style="display:none"></div>
+    </div>
+
+    <!-- 미매핑 칩 -->
+    <div class="unmatched-section" id="unmatchedSection" style="display:none">
+      <div class="unmatched-header">
+        <i class="fas fa-triangle-exclamation"></i>
+        미매핑 항목 — 채널 매핑 탭에서 추가하거나 [미매핑 처리]를 클릭하세요.
+      </div>
+      <div class="unmatched-body" id="unmatchedBody"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     탭 2 : 채널 관리
+     ══════════════════════════════════════════════════════════ -->
+<main class="ag-main" id="tab-channel" style="display:none">
+
+  <div class="master-toolbar">
+    <div class="master-toolbar-left">
+      <button class="ag-btn btn-master-add" onclick="addChannel()">
+        <i class="fas fa-plus"></i> 채널 추가
+      </button>
+    </div>
+    <div class="master-toolbar-right">
+      <span class="master-count" style="color:var(--text-muted);font-size:12.5px">
+        <i class="fas fa-circle-info" style="color:var(--primary)"></i>
+        채널명·더존코드를 셀에서 직접 수정하고 Enter를 누르세요.
+      </span>
+    </div>
+  </div>
+
+  <div class="master-guide" id="channelGuide" style="display:none">
+    <div class="guide-icon"><i class="fas fa-lightbulb"></i></div>
+    <div class="guide-body">
+      <div class="guide-title">채널 등록 안내</div>
+      <div class="guide-desc">
+        <ul>
+          <li>각 판매 채널(공홈·스마트스토어·쿠팡 등)과 더존 코드를 등록합니다.</li>
+          <li><b>더존코드</b>: 더존 프로그램에서 채널별로 부여된 고유 코드 (예: 스마트스토어 12000)</li>
+          <li><b>공홈 토글</b>: 자사몰(공홈) 채널에만 ON — 자사몰 출고파일이 자동 연결됩니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="master-table-wrap">
+    <table class="ag-table">
+      <thead><tr>
+        <th style="width:40px">No.</th>
+        <th>채널명</th>
+        <th style="width:120px">더존코드</th>
+        <th style="width:100px">공홈(자사몰)</th>
+        <th class="no-print" style="width:60px">삭제</th>
+      </tr></thead>
+      <tbody id="channelBody">
+        <tr><td colspan="5" class="empty-row"><i class="fas fa-inbox"></i> 채널이 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     탭 3 : 품목 마스터
+     ══════════════════════════════════════════════════════════ -->
+<main class="ag-main" id="tab-item" style="display:none">
+
+  <div class="master-toolbar">
+    <div class="master-toolbar-left">
+      <button class="ag-btn btn-master-add" onclick="openItemModal(null)">
+        <i class="fas fa-plus"></i> 품목 추가
+      </button>
+      <label class="ag-btn btn-master-import" title="A열=품번, B열=품명 엑셀 업로드">
+        <i class="fas fa-file-import"></i> 엑셀 가져오기
+        <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importItems(event)"/>
+      </label>
+      <button class="ag-btn btn-master-export" onclick="exportItems()">
+        <i class="fas fa-file-export"></i> 엑셀 내보내기
+      </button>
+    </div>
+    <div class="master-toolbar-right">
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="itemSearch" class="search-input" placeholder="품번·품명 검색…" oninput="renderItemTable()"/>
+      </div>
+      <span class="master-count" id="itemCount">0개</span>
+    </div>
+  </div>
+
+  <div class="master-guide" id="itemGuide">
+    <div class="guide-icon"><i class="fas fa-lightbulb"></i></div>
+    <div class="guide-body">
+      <div class="guide-title">품목 마스터 등록 방법</div>
+      <div class="guide-desc">
+        <ul>
+          <li><b>[품목 추가]</b> 버튼 → 품번·품명·환산비율 직접 입력</li>
+          <li><b>[엑셀 가져오기]</b> → A열=품번, B열=품명 형식 업로드</li>
+          <li><b>환산비율</b>: 세트 품목은 출고 1건이 실재고 N개면 N 입력<br>
+              <span style="color:var(--text-muted);font-size:12px">예) 2구 세트 → 2 입력 → 출고수량 × 2 = 차감수량</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="master-table-wrap">
+    <table class="ag-table">
+      <thead><tr>
+        <th style="width:40px">No.</th>
+        <th style="width:110px">품번</th>
+        <th>품명</th>
+        <th style="width:120px">환산비율 <span class="col-hint-text">(클릭수정)</span></th>
+        <th class="no-print" style="width:70px">작업</th>
+      </tr></thead>
+      <tbody id="itemBody">
+        <tr><td colspan="5" class="empty-row"><i class="fas fa-inbox"></i> 품목이 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     탭 4 : 채널 매핑
+     ══════════════════════════════════════════════════════════ -->
+<main class="ag-main" id="tab-mapping" style="display:none">
+  <div id="mappingSectionWrap" style="display:flex;flex-direction:column;gap:20px">
+    <!-- JS로 채널별 패널 렌더링 -->
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     모달: 품목 추가/수정
+     ══════════════════════════════════════════════════════════ -->
+<div class="ag-modal-overlay" id="itemModal">
+  <div class="ag-modal-box">
+    <div class="ag-modal-header">
+      <span id="itemModalTitle"><i class="fas fa-plus"></i> 품목 추가</span>
+      <button class="ag-modal-close" onclick="closeItemModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="ag-modal-body">
+      <input type="hidden" id="itemModalId"/>
+      <div class="ag-field-group">
+        <label class="ag-field-label"><i class="fas fa-barcode"></i> 품번 <span class="req">*</span></label>
+        <input type="text" id="itemCode" class="ag-field-input" placeholder="예) A-001"/>
+      </div>
+      <div class="ag-field-group">
+        <label class="ag-field-label"><i class="fas fa-tag"></i> 품명 <span class="req">*</span></label>
+        <input type="text" id="itemName" class="ag-field-input" placeholder="예) 프리미엄 원두 200g"/>
+      </div>
+      <div class="ag-field-group">
+        <label class="ag-field-label"><i class="fas fa-layer-group"></i> 수량 환산비율</label>
+        <input type="number" id="itemRatio" class="ag-field-input" value="1" min="0.01" step="0.01"/>
+        <div class="ag-field-hint">
+          <i class="fas fa-circle-info"></i>
+          일반 품목=1 / 세트 예시: 출고 1건 = 2개 구성이면 <b>2</b> 입력
+        </div>
+      </div>
+      <div class="ag-field-group">
+        <label class="ag-field-label"><i class="fas fa-note-sticky"></i> 메모</label>
+        <input type="text" id="itemMemo" class="ag-field-input" placeholder="선택 입력"/>
+      </div>
+    </div>
+    <div class="ag-modal-footer">
+      <button class="ag-btn btn-cancel" onclick="closeItemModal()">취소</button>
+      <button class="ag-btn btn-save"   onclick="saveItem()"><i class="fas fa-check"></i> 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     모달: 미매핑 처리
+     ══════════════════════════════════════════════════════════ -->
+<div class="ag-modal-overlay" id="unmatchedModal">
+  <div class="ag-modal-box" style="max-width:680px">
+    <div class="ag-modal-header">
+      <span><i class="fas fa-triangle-exclamation" style="color:#fbbf24"></i> 미매핑 항목 처리</span>
+      <button class="ag-modal-close" onclick="closeUnmatchedModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="ag-modal-body" id="unmatchedModalBody"></div>
+    <div class="ag-modal-footer">
+      <button class="ag-btn btn-cancel" onclick="closeUnmatchedModal()">닫기</button>
+      <button class="ag-btn btn-save"   onclick="applyUnmatchedMapping()">
+        <i class="fas fa-check"></i> 매핑 저장 후 재집계
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="ag-toast" id="agToast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="js/aggregator.js?v=20260431"></script>
+</body>
+</html>

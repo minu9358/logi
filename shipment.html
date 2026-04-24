@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>물류팀 출고 집계</title>
+  <link rel="stylesheet" href="css/shipment.css?v=20260426"/>
+  <link rel="stylesheet" href="css/nav.css?v=20260426"/>
+  <link rel="stylesheet" href="css/shared-header.css?v=20260426"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="gh-header no-print">
+    <div class="gh-inner">
+      <div class="gh-logo">
+        <i class="fas fa-box-open gh-logo-icon"></i>
+        <span class="gh-title">물류팀 출고 집계</span>
+      </div>
+      <div class="gh-divider"></div>
+      <nav class="gh-nav">
+        <a href="index.html"          class="gh-btn gh-btn-main">  <i class="fas fa-house"></i>            <span>물류 업무</span></a>
+        <a href="duty.html"           class="gh-btn gh-btn-duty">  <i class="fas fa-list-check"></i>      <span>업무분장</span></a>
+        <span class="gh-btn gh-btn-ship gh-active">                <i class="fas fa-box-open"></i>        <span>출고집계</span></span>
+        <a href="aggregator.html"     class="gh-btn gh-btn-agg">   <i class="fas fa-layer-group"></i>     <span>매핑관리</span></a>
+        <a href="share.html"          class="gh-btn gh-btn-share"> <i class="fas fa-people-group"></i>    <span>팀원 공유</span></a>
+        <a href="flow/flowchart.html" class="gh-btn gh-btn-flow">  <i class="fas fa-diagram-project"></i> <span>플로우차트</span></a>
+        
+      </nav>
+      <div class="gh-actions">
+        <button class="gh-btn gh-btn-export" onclick="exportCSV()">    <i class="fas fa-file-csv"></i> <span>CSV 내보내기</span></button>
+        <button class="gh-btn gh-btn-print"  onclick="window.print()"> <i class="fas fa-print"></i>    <span>인쇄</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 매핑관리 연동 상태 배너 -->
+  <div class="agg-status-banner banner-idle no-print" id="aggStatusBanner">
+    <i class="fas fa-circle-info" style="color:var(--text-muted)"></i>
+    <span style="color:var(--text-sub)">매핑관리에서 집계 실행 시 이곳에 자동 누적됩니다.</span>
+    <a href="aggregator.html" class="sh-btn sh-btn-aggregator" style="margin-left:auto;font-size:11.5px;padding:5px 12px">
+      <i class="fas fa-layer-group"></i> 매핑관리 열기
+    </a>
+  </div>
+
+  <!-- 날짜 범위 컨트롤 바 -->
+  <div class="ctrl-bar no-print">
+    <div class="ctrl-bar-inner">
+      <div class="ctrl-left">
+        <i class="fas fa-calendar-days ctrl-icon"></i>
+        <span class="ctrl-label">기간</span>
+        <input type="date" id="dateFrom" class="ctrl-date-input"/>
+        <span class="ctrl-sep">~</span>
+        <input type="date" id="dateTo"   class="ctrl-date-input"/>
+        <button class="ctrl-btn btn-today"   onclick="setToday()">오늘</button>
+        <button class="ctrl-btn btn-week"    onclick="setThisWeek()">이번 주</button>
+        <button class="ctrl-btn btn-month"   onclick="setThisMonth()">이번 달</button>
+      </div>
+      <div class="ctrl-right">
+        <button class="ctrl-btn btn-load" onclick="loadData()"><i class="fas fa-rotate"></i> 집계 조회</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="sh-main">
+
+    <!-- ① KPI 카드 -->
+    <section class="kpi-section" id="kpiSection">
+      <div class="kpi-card kpi-total">
+        <div class="kpi-icon"><i class="fas fa-boxes-stacking"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">총 출고 건수</div>
+          <div class="kpi-value" id="kpiTotal">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-today">
+        <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">오늘 출고</div>
+          <div class="kpi-value" id="kpiToday">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-avg">
+        <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">일 평균 출고</div>
+          <div class="kpi-value" id="kpiAvg">—</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-channel">
+        <div class="kpi-icon"><i class="fas fa-store"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">채널 수</div>
+          <div class="kpi-value" id="kpiChannel">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ② 입력 / 집계 패널 -->
+    <div class="panel-grid">
+
+      <!-- 왼쪽: 출고 입력 -->
+      <section class="panel panel-input">
+        <div class="panel-header">
+          <span class="panel-title"><i class="fas fa-plus-circle"></i> 출고 데이터 입력</span>
+          <button class="sh-nav-btn btn-add-entry" onclick="openEntryModal()"><i class="fas fa-plus"></i> 추가</button>
+        </div>
+        <div class="panel-body">
+          <!-- 빠른 입력 폼 -->
+          <div class="quick-form">
+            <div class="qf-row">
+              <div class="qf-field">
+                <label class="qf-label"><i class="fas fa-calendar"></i> 날짜</label>
+                <input type="date" id="qfDate" class="qf-input"/>
+              </div>
+              <div class="qf-field">
+                <label class="qf-label"><i class="fas fa-store"></i> 채널</label>
+                <select id="qfChannel" class="qf-select" onchange="handleQfChannelChange()">
+                  <!-- JS가 동적으로 채움 -->
+                </select>
+              </div>
+            </div>
+            <div class="qf-row" id="qfNewChannelRow" style="display:none;">
+              <div class="qf-field full">
+                <label class="qf-label"><i class="fas fa-tag"></i> 새 채널명</label>
+                <input type="text" id="qfNewChannel" class="qf-input" placeholder="채널명 입력 후 Enter" onkeydown="handleNewChannelKey(event)"/>
+              </div>
+            </div>
+            <div class="qf-row">
+              <div class="qf-field">
+                <label class="qf-label"><i class="fas fa-hashtag"></i> 건수</label>
+                <input type="number" id="qfCount" class="qf-input" placeholder="0" min="0"/>
+              </div>
+              <div class="qf-field">
+                <label class="qf-label"><i class="fas fa-sun"></i> 시간대</label>
+                <select id="qfSlot" class="qf-select">
+                  <option value="오전">오전</option>
+                  <option value="오후">오후</option>
+                  <option value="종일">종일</option>
+                </select>
+              </div>
+            </div>
+            <div class="qf-row">
+              <div class="qf-field full">
+                <label class="qf-label"><i class="fas fa-note-sticky"></i> 메모 (선택)</label>
+                <input type="text" id="qfMemo" class="qf-input" placeholder="특이사항 등"/>
+              </div>
+            </div>
+            <button class="qf-submit-btn" onclick="quickAdd()"><i class="fas fa-check"></i> 저장</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 오른쪽: 채널별 집계 -->
+      <section class="panel panel-summary">
+        <div class="panel-header">
+          <span class="panel-title"><i class="fas fa-chart-bar"></i> 채널별 집계</span>
+          <div class="panel-header-right">
+            <button class="ctrl-btn btn-channel-mgmt" onclick="openChannelModal()"><i class="fas fa-gear"></i> 채널 관리</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="channel-summary-wrap" id="channelSummary">
+            <div class="empty-state"><i class="fas fa-inbox"></i><span>조회 기간을 설정하고 [집계 조회]를 눌러주세요.</span></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ③ 날짜별 추이 -->
+    <section class="panel panel-chart">
+      <div class="panel-header">
+        <span class="panel-title"><i class="fas fa-chart-area"></i> 날짜별 출고 추이</span>
+        <div class="panel-header-right">
+          <button class="ctrl-btn btn-chart-toggle active" id="chartToggleAll"    onclick="setChartMode('all')">전체</button>
+          <button class="ctrl-btn btn-chart-toggle"        id="chartToggleStack"  onclick="setChartMode('stack')">채널별 누적</button>
+        </div>
+      </div>
+      <div class="panel-body chart-body">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </section>
+
+    <!-- ④ 상세 내역 테이블 -->
+    <section class="panel panel-table">
+      <div class="panel-header">
+        <span class="panel-title"><i class="fas fa-table-list"></i> 출고 내역</span>
+        <div class="panel-header-right">
+          <div class="search-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="채널·메모 검색…" oninput="renderTable()"/>
+          </div>
+          <select id="filterChannel" class="ctrl-small-select" onchange="renderTable()">
+            <option value="">전체 채널</option>
+          </select>
+          <select id="filterSlot" class="ctrl-small-select" onchange="renderTable()">
+            <option value="">전체 시간대</option>
+            <option value="오전">오전</option>
+            <option value="오후">오후</option>
+            <option value="종일">종일</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel-body table-body">
+        <table class="sh-table" id="shipTable">
+          <thead>
+            <tr>
+              <th onclick="sortBy('date')"    class="sortable" data-col="date">날짜 <i class="fas fa-sort"></i></th>
+              <th onclick="sortBy('channel')" class="sortable" data-col="channel">채널 <i class="fas fa-sort"></i></th>
+              <th onclick="sortBy('slot')"    class="sortable" data-col="slot">시간대 <i class="fas fa-sort"></i></th>
+              <th onclick="sortBy('count')"   class="sortable" data-col="count">건수 <i class="fas fa-sort"></i></th>
+              <th>메모</th>
+              <th class="no-print">작업</th>
+            </tr>
+          </thead>
+          <tbody id="shipBody">
+            <tr><td colspan="6" class="empty-row"><i class="fas fa-inbox"></i> 데이터가 없습니다.</td></tr>
+          </tbody>
+        </table>
+        <div class="table-footer" id="tableFooter"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── 출고 수정 모달 ────────────────────────── -->
+  <div class="sh-modal-overlay" id="editEntryModal">
+    <div class="sh-modal-box">
+      <div class="sh-modal-header">
+        <span id="entryModalTitle"><i class="fas fa-pen-to-square"></i> 출고 데이터 수정</span>
+        <button class="sh-modal-close" onclick="closeEntryModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="sh-modal-body">
+        <input type="hidden" id="modalEntryId"/>
+        <div class="modal-field-group">
+          <label class="modal-field-label"><i class="fas fa-calendar"></i> 날짜</label>
+          <input type="date" id="modalDate" class="modal-field-input"/>
+        </div>
+        <div class="modal-field-group">
+          <label class="modal-field-label"><i class="fas fa-store"></i> 채널</label>
+          <select id="modalChannel" class="modal-field-input" onchange="handleModalChannelChange()"></select>
+          <div id="modalNewChannelRow" style="display:none;margin-top:8px;">
+            <input type="text" id="modalNewChannel" class="modal-field-input" placeholder="새 채널명 입력"/>
+          </div>
+        </div>
+        <div class="modal-field-group">
+          <label class="modal-field-label"><i class="fas fa-sun"></i> 시간대</label>
+          <select id="modalSlot" class="modal-field-input">
+            <option value="오전">오전</option>
+            <option value="오후">오후</option>
+            <option value="종일">종일</option>
+          </select>
+        </div>
+        <div class="modal-field-group">
+          <label class="modal-field-label"><i class="fas fa-hashtag"></i> 건수</label>
+          <input type="number" id="modalCount" class="modal-field-input" min="0"/>
+        </div>
+        <div class="modal-field-group">
+          <label class="modal-field-label"><i class="fas fa-note-sticky"></i> 메모</label>
+          <input type="text" id="modalMemo" class="modal-field-input" placeholder="선택"/>
+        </div>
+      </div>
+      <div class="sh-modal-footer">
+        <button class="sh-btn sh-btn-outline" onclick="closeEntryModal()">취소</button>
+        <button class="sh-btn sh-btn-save"    onclick="saveEntry()"><i class="fas fa-check"></i> 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 채널 관리 모달 ────────────────────────── -->
+  <div class="sh-modal-overlay" id="channelModal">
+    <div class="sh-modal-box">
+      <div class="sh-modal-header">
+        <span><i class="fas fa-store"></i> 채널 관리</span>
+        <button class="sh-modal-close" onclick="closeChannelModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="sh-modal-body">
+        <div class="channel-add-row">
+          <input type="text" id="newChannelInput" class="modal-field-input" placeholder="새 채널명 입력" onkeydown="if(event.key==='Enter') addChannel()"/>
+          <button class="sh-btn sh-btn-save" onclick="addChannel()"><i class="fas fa-plus"></i> 추가</button>
+        </div>
+        <ul class="channel-list" id="channelList"></ul>
+      </div>
+      <div class="sh-modal-footer">
+        <button class="sh-btn sh-btn-outline" onclick="closeChannelModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="sh-toast" id="shipToast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/members.js"></script>
+  <script src="js/shipment.js?v=20260426"></script>
+</body>
+</html>

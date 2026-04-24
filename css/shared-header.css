@@ -1,0 +1,209 @@
+/* ══════════════════════════════════════════════════════════
+   물류팀 공통 헤더 – shared-header.css
+   모든 페이지(index, duty, shipment, aggregator, share, flow)
+   에서 동일한 헤더 레이아웃·색상을 사용합니다.
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  --gh-height:   54px;
+  --header-h:    54px; /* 기존 CSS 변수 호환 (aggregator, shipment 탭 sticky 위치 맞춤) */
+  --gh-bg:       #0f1623;
+  --gh-border:   rgba(34,211,200,0.13);
+  --gh-shadow:   0 2px 20px rgba(0,0,0,0.5);
+  --gh-font:     "Noto Sans KR", system-ui, sans-serif;
+  --gh-primary:  #22d3c8;
+  --gh-text:     #e2e8f0;
+  --gh-sub:      #7d8fa3;
+  --gh-radius:   8px;
+  --gh-trans:    0.15s ease;
+}
+
+/* ── 헤더 컨테이너 ── */
+.gh-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: var(--gh-height);
+  background: var(--gh-bg);
+  border-bottom: 1px solid var(--gh-border);
+  box-shadow: var(--gh-shadow);
+  font-family: var(--gh-font);
+}
+.gh-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 12px;
+}
+
+/* ── 왼쪽: 로고 영역 ── */
+.gh-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.gh-logo-icon {
+  font-size: 18px;
+  color: var(--gh-primary);
+  filter: drop-shadow(0 0 6px rgba(34,211,200,0.45));
+}
+.gh-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gh-text);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+/* ── 구분선 ── */
+.gh-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+
+/* ── 중앙/오른쪽: 네비 + 액션 버튼 그룹 ── */
+.gh-nav {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  /* 스크롤바 숨김 */
+  scrollbar-width: none;
+}
+.gh-nav::-webkit-scrollbar { display: none; }
+
+.gh-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ── 공통 버튼 ── */
+.gh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--gh-radius);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: var(--gh-sub);
+  font-family: var(--gh-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all var(--gh-trans);
+  letter-spacing: -0.2px;
+}
+.gh-btn:hover {
+  background: rgba(255,255,255,0.10);
+  color: var(--gh-text);
+  border-color: rgba(255,255,255,0.2);
+}
+.gh-btn i { font-size: 12px; }
+.gh-btn span { display: inline; }
+
+/* 현재 페이지 활성 */
+.gh-btn.gh-active {
+  box-shadow: 0 0 0 1.5px currentColor;
+  opacity: 1 !important;
+}
+
+/* ── 페이지별 버튼 색상 ── */
+/* 메인 */
+.gh-btn-main        { background:rgba(34,211,200,0.10); color:#22d3c8; border-color:rgba(34,211,200,0.28); }
+.gh-btn-main:hover  { background:rgba(34,211,200,0.22); border-color:#22d3c8; color:#22d3c8; }
+
+/* 업무분장 */
+.gh-btn-duty        { background:rgba(56,189,248,0.10); color:#38bdf8; border-color:rgba(56,189,248,0.28); }
+.gh-btn-duty:hover  { background:rgba(56,189,248,0.22); border-color:#38bdf8; color:#38bdf8; }
+
+/* 출고집계 */
+.gh-btn-ship        { background:rgba(251,191,36,0.11); color:#fbbf24; border-color:rgba(251,191,36,0.30); }
+.gh-btn-ship:hover  { background:rgba(251,191,36,0.22); border-color:#fbbf24; color:#fbbf24; }
+
+/* 매핑관리 */
+.gh-btn-agg         { background:rgba(99,102,241,0.12); color:#818cf8; border-color:rgba(99,102,241,0.32); }
+.gh-btn-agg:hover   { background:rgba(99,102,241,0.24); border-color:#818cf8; color:#818cf8; }
+
+/* 팀원 공유 */
+.gh-btn-share       { background:rgba(167,139,250,0.10); color:#a78bfa; border-color:rgba(167,139,250,0.28); }
+.gh-btn-share:hover { background:rgba(167,139,250,0.22); border-color:#a78bfa; color:#a78bfa; }
+
+/* 물류 업무 */
+.gh-btn-flow        { background:rgba(52,211,153,0.10); color:#34d399; border-color:rgba(52,211,153,0.28); }
+.gh-btn-flow:hover  { background:rgba(52,211,153,0.22); border-color:#34d399; color:#34d399; }
+
+/* 자동전송 */
+.gh-btn-auto        { background:rgba(251,146,60,0.10); color:#fb923c; border-color:rgba(251,146,60,0.28); }
+.gh-btn-auto:hover  { background:rgba(251,146,60,0.22); border-color:#fb923c; color:#fb923c; }
+.gh-btn-auto.auto-on { background:rgba(251,146,60,0.20); color:#fb923c; border-color:#fb923c; }
+
+/* 인쇄·저장·초기화·내보내기 */
+.gh-btn-print       { background:rgba(100,116,139,0.12); color:#94a3b8; border-color:rgba(100,116,139,0.25); }
+.gh-btn-print:hover { background:rgba(100,116,139,0.22); color:#e2e8f0; }
+
+.gh-btn-save        { background:rgba(34,211,200,0.10); color:#22d3c8; border-color:rgba(34,211,200,0.28); }
+.gh-btn-save:hover  { background:rgba(34,211,200,0.22); border-color:#22d3c8; }
+
+.gh-btn-reset       { background:rgba(248,113,113,0.10); color:#f87171; border-color:rgba(248,113,113,0.25); }
+.gh-btn-reset:hover { background:rgba(248,113,113,0.22); border-color:#f87171; }
+
+.gh-btn-export      { background:rgba(52,211,153,0.10); color:#34d399; border-color:rgba(52,211,153,0.25); }
+.gh-btn-export:hover{ background:rgba(52,211,153,0.22); border-color:#34d399; }
+
+/* 텔레그램 */
+.gh-btn-tg          { background:rgba(38,170,240,0.12); color:#26aaf0; border-color:rgba(38,170,240,0.28); }
+.gh-btn-tg:hover    { background:rgba(38,170,240,0.24); border-color:#26aaf0; }
+
+/* 업무 추가 */
+.gh-btn-add         { background:rgba(34,211,200,0.14); color:#22d3c8; border-color:rgba(34,211,200,0.35); }
+.gh-btn-add:hover   { background:rgba(34,211,200,0.26); border-color:#22d3c8; }
+
+/* 자동전송 카운트다운 */
+.gh-countdown {
+  font-size: 11px;
+  color: #fb923c;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* 날짜 인풋 (share.html) */
+.gh-date-input {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--gh-radius);
+  border: 1px solid rgba(167,139,250,0.3);
+  background: rgba(167,139,250,0.08);
+  color: #a78bfa;
+  font-family: var(--gh-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+.gh-date-input:focus { border-color: #a78bfa; }
+
+/* ── 반응형 ── */
+@media (max-width: 960px) {
+  .gh-btn span { display: none; }
+  .gh-btn { padding: 0 10px; }
+}
+@media (max-width: 600px) {
+  .gh-title { display: none; }
+  .gh-divider { display: none; }
+}

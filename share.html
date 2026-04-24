@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>물류팀 업무 공유</title>
+  <link rel="stylesheet" href="css/share.css"/>
+  <link rel="stylesheet" href="css/nav.css?v=20260422"/>
+  <link rel="stylesheet" href="css/shared-header.css?v=20260426"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="gh-header no-print">
+    <div class="gh-inner">
+      <div class="gh-logo">
+        <i class="fas fa-people-group gh-logo-icon"></i>
+        <span class="gh-title">물류팀 팀원 공유</span>
+      </div>
+      <div class="gh-divider"></div>
+      <nav class="gh-nav">
+        <a href="index.html"          class="gh-btn gh-btn-main">  <i class="fas fa-house"></i>            <span>물류 업무</span></a>
+        <a href="duty.html"           class="gh-btn gh-btn-duty">  <i class="fas fa-list-check"></i>      <span>업무분장</span></a>
+        <a href="shipment.html"       class="gh-btn gh-btn-ship">  <i class="fas fa-box-open"></i>        <span>출고집계</span></a>
+        <a href="aggregator.html"     class="gh-btn gh-btn-agg">   <i class="fas fa-layer-group"></i>     <span>매핑관리</span></a>
+        <span class="gh-btn gh-btn-share gh-active">               <i class="fas fa-people-group"></i>    <span>팀원 공유</span></span>
+        <a href="flow/flowchart.html" class="gh-btn gh-btn-flow">  <i class="fas fa-diagram-project"></i> <span>플로우차트</span></a>
+      </nav>
+      <div class="gh-actions">
+        <input type="date" id="shareDate" class="gh-date-input" onchange="loadAllMembers()"/>
+        <button class="gh-btn gh-btn-tg" onclick="openTgModal()"><i class="fab fa-telegram"></i> <span>전송</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 날짜 표시 배너 -->
+  <div class="sh-date-banner no-print">
+    <span id="dateBannerText"></span>
+    <span class="sh-save-all-wrap">
+      <button class="sh-btn sh-btn-save-all" onclick="saveAll()"><i class="fas fa-floppy-disk"></i> 전체 저장</button>
+    </span>
+  </div>
+
+  <!-- 팀원 카드 목록 -->
+  <main class="sh-main" id="memberList"></main>
+
+  <!-- 텔레그램 모달 -->
+  <div class="sh-modal-overlay" id="tgModal" onclick="closeTgModalOutside(event)">
+    <div class="sh-modal-box">
+      <div class="sh-modal-header">
+        <span><i class="fab fa-telegram"></i> 텔레그램 전송</span>
+        <button class="sh-modal-close" onclick="closeTgModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="sh-modal-body">
+        <div class="sh-modal-info">
+          <i class="fas fa-circle-info"></i>
+          오늘 팀원 전체 공유 내용을 텔레그램으로 전송합니다. Bot Token과 Chat ID를 입력하세요.
+        </div>
+        <div class="sh-field-group">
+          <label class="sh-field-label">Bot Token</label>
+          <input type="text" id="tgToken" class="sh-tg-input" placeholder=""/>
+        </div>
+        <div class="sh-field-group" style="margin-top:12px;">
+          <label class="sh-field-label">Chat ID</label>
+          <input type="text" id="tgChatId" class="sh-tg-input" placeholder=""/>
+        </div>
+        <div class="sh-field-group" style="margin-top:12px;">
+          <label class="sh-field-label">미리보기</label>
+          <textarea id="tgPreview" class="sh-tg-preview" rows="16" readonly></textarea>
+        </div>
+      </div>
+      <div class="sh-modal-footer">
+        <button class="sh-btn sh-btn-outline" onclick="closeTgModal()">취소</button>
+        <button class="sh-btn sh-btn-save" onclick="saveTgSettings()"><i class="fas fa-floppy-disk"></i> 설정저장</button>
+        <button class="sh-btn sh-btn-tg" onclick="sendTelegram()"><i class="fab fa-telegram"></i> 전송하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="sh-toast" id="shToast"></div>
+
+  <script src="js/members.js"></script>
+  <script src="js/share.js"></script>
+</body>
+</html>

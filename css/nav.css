@@ -1,0 +1,179 @@
+/* ══════════════════════════════════════════════════════
+   물류팀 공통 네비게이션 버튼 색상 정의  nav.css
+   ──────────────────────────────────────────────────────
+   모든 페이지(index, duty, shipment, share, aggregator)에서
+   공통 링크. 각 페이지의 버튼 컨테이너 클래스(btn, duty-nav-btn,
+   sh-nav-btn, sh-btn, ag-nav-btn)와 함께 동작합니다.
+   ══════════════════════════════════════════════════════ */
+
+/* 링크 버튼 공통: 밑줄 제거 */
+a.btn, a.sh-btn, a.ag-nav-btn, a.duty-nav-btn, a.sh-nav-btn { text-decoration: none; }
+
+/* ── 메인(홈) ───────────────────────────────────── */
+.btn-main,
+.btn-main:visited,
+.sh-btn-main {
+  background: rgba(34,211,200,0.12);
+  color: #22d3c8;
+  border-color: rgba(34,211,200,0.3);
+  text-decoration: none;
+}
+.btn-main:hover,
+.sh-btn-main:hover {
+  background: rgba(34,211,200,0.22);
+  border-color: #22d3c8;
+  color: #22d3c8;
+}
+
+/* ── 물류업무 플로우 ─────────────────────────────── */
+.btn-flow,
+.btn-flow-link,
+.sh-btn-flow {
+  background: rgba(52,211,153,0.12);
+  color: #34d399;
+  border-color: rgba(52,211,153,0.3);
+  text-decoration: none;
+}
+.btn-flow:hover,
+.btn-flow-link:hover,
+.sh-btn-flow:hover {
+  background: rgba(52,211,153,0.22);
+  border-color: #34d399;
+  color: #34d399;
+}
+
+/* ── 업무분장 ────────────────────────────────────── */
+.btn-duty,
+.btn-duty-link,
+.sh-btn-duty {
+  background: rgba(56,189,248,0.12);
+  color: #38bdf8;
+  border-color: rgba(56,189,248,0.3);
+  text-decoration: none;
+}
+.btn-duty:hover,
+.btn-duty-link:hover,
+.sh-btn-duty:hover {
+  background: rgba(56,189,248,0.22);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* ── 출고집계 ────────────────────────────────────── */
+.btn-ship,
+.btn-shipment,
+.btn-shipment-link,
+.sh-btn-shipment {
+  background: rgba(251,191,36,0.13);
+  color: #fbbf24;
+  border-color: rgba(251,191,36,0.32);
+  text-decoration: none;
+}
+.btn-ship:hover,
+.btn-shipment:hover,
+.btn-shipment-link:hover,
+.sh-btn-shipment:hover {
+  background: rgba(251,191,36,0.24);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+/* ── 매핑관리 ────────────────────────────────────── */
+.btn-aggregator,
+.btn-aggregator-link,
+.sh-btn-aggregator {
+  background: rgba(99,102,241,0.14);
+  color: #818cf8;
+  border-color: rgba(99,102,241,0.35);
+  text-decoration: none;
+}
+.btn-aggregator:hover,
+.btn-aggregator-link:hover,
+.sh-btn-aggregator:hover {
+  background: rgba(99,102,241,0.25);
+  border-color: #818cf8;
+  color: #818cf8;
+}
+
+/* ── 팀원 공유 ──────────────────────────────────── */
+.btn-share,
+.btn-share-link,
+.sh-btn-share {
+  background: rgba(167,139,250,0.12);
+  color: #a78bfa;
+  border-color: rgba(167,139,250,0.3);
+  text-decoration: none;
+}
+.btn-share:hover,
+.btn-share-link:hover,
+.sh-btn-share:hover {
+  background: rgba(167,139,250,0.22);
+  border-color: #a78bfa;
+  color: #a78bfa;
+}
+
+/* ── 기능 버튼 (출력·저장·초기화 등) ───────────── */
+.btn-print,
+.duty-nav-btn.btn-print,
+.sh-nav-btn.btn-print {
+  background: rgba(30,41,59,0.7);
+  color: #7d8fa3;
+  border-color: #243044;
+}
+.btn-print:hover,
+.duty-nav-btn.btn-print:hover,
+.sh-nav-btn.btn-print:hover {
+  background: rgba(34,45,61,0.9);
+  color: #e2e8f0;
+}
+
+.btn-reset {
+  background: rgba(248,113,113,0.12);
+  color: #f87171;
+  border-color: rgba(248,113,113,0.28);
+}
+.btn-reset:hover {
+  background: rgba(248,113,113,0.22);
+  border-color: #f87171;
+}
+
+/* ── flowchart.html 전용 접미사 별칭 ─────────────── */
+.btn-main-flow {
+  background: rgba(34,211,200,0.12);
+  color: #22d3c8;
+  border-color: rgba(34,211,200,0.3);
+  text-decoration: none;
+}
+.btn-main-flow:hover {
+  background: rgba(34,211,200,0.22);
+  border-color: #22d3c8;
+  color: #22d3c8;
+}
+.btn-shipment-flow {
+  background: rgba(251,191,36,0.13);
+  color: #fbbf24;
+  border-color: rgba(251,191,36,0.32);
+  text-decoration: none;
+}
+.btn-shipment-flow:hover {
+  background: rgba(251,191,36,0.24);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+.btn-aggregator-flow {
+  background: rgba(99,102,241,0.14);
+  color: #818cf8;
+  border-color: rgba(99,102,241,0.35);
+  text-decoration: none;
+}
+.btn-aggregator-flow:hover {
+  background: rgba(99,102,241,0.25);
+  border-color: #818cf8;
+  color: #818cf8;
+}
+
+/* ── 현재 페이지 활성 표시 ───────────────────────── */
+.nav-active {
+  box-shadow: 0 0 0 2px currentColor;
+  opacity: 1 !important;
+}

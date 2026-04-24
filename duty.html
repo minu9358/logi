@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>물류팀 업무 분장표</title>
+  <link rel="stylesheet" href="css/duty.css?v=20260422b"/>
+  <link rel="stylesheet" href="css/nav.css?v=20260422"/>
+  <link rel="stylesheet" href="css/shared-header.css?v=20260426"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="gh-header no-print">
+    <div class="gh-inner">
+      <div class="gh-logo">
+        <i class="fas fa-list-check gh-logo-icon"></i>
+        <span class="gh-title">물류팀 업무 분장표</span>
+      </div>
+      <div class="gh-divider"></div>
+      <nav class="gh-nav">
+        <a href="index.html"          class="gh-btn gh-btn-main">  <i class="fas fa-house"></i>            <span>물류 업무</span></a>
+        <span class="gh-btn gh-btn-duty gh-active">                <i class="fas fa-list-check"></i>      <span>업무분장</span></span>
+        <a href="shipment.html"       class="gh-btn gh-btn-ship">  <i class="fas fa-box-open"></i>        <span>출고집계</span></a>
+        <a href="aggregator.html"     class="gh-btn gh-btn-agg">   <i class="fas fa-layer-group"></i>     <span>매핑관리</span></a>
+        <a href="share.html"          class="gh-btn gh-btn-share"> <i class="fas fa-people-group"></i>    <span>팀원 공유</span></a>
+        <a href="flow/flowchart.html" class="gh-btn gh-btn-flow">  <i class="fas fa-diagram-project"></i> <span>플로우차트</span></a>
+        
+        
+</a>
+      </nav>
+      <div class="gh-actions">
+        <button class="gh-btn gh-btn-add"   onclick="openAddModal()"><i class="fas fa-plus"></i>        <span>업무 추가</span></button>
+        <button class="gh-btn gh-btn-print" onclick="window.print()"><i class="fas fa-print"></i>      <span>인쇄</span></button>
+        <button class="gh-btn gh-btn-reset" onclick="resetAll()">   <i class="fas fa-rotate-left"></i> <span>초기화</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 안내 배너 -->
+  <div class="duty-banner no-print">
+    <span class="banner-legend">
+      <span class="mark-primary">●</span> 주담당 &nbsp;
+      <span class="mark-secondary">○</span> 부담당
+    </span>
+    <span class="banner-hint">
+      <i class="fas fa-circle-info"></i>
+      담당 셀 클릭 → 주담당/부담당/없음 순환 &nbsp;|&nbsp;
+      <i class="fas fa-pen" style="color:#2563eb;"></i> 수정 &nbsp;
+      <i class="fas fa-trash" style="color:#dc2626;"></i> 삭제 &nbsp;|&nbsp;
+      변경사항 자동 저장
+    </span>
+  </div>
+
+  <!-- 메인 테이블 -->
+  <main class="duty-main">
+    <div class="duty-table-wrap">
+      <table class="duty-table" id="dutyTable">
+        <thead>
+          <tr class="thead-row">
+            <th class="col-handle no-print"></th>
+            <th class="col-cat1">대분류</th>
+            <th class="col-cat2">중분류</th>
+            <th class="col-task">소분류 (업무 내용)</th>
+            <th class="col-member" data-member="김민우">김민우</th>
+            <th class="col-member" data-member="석미경">석미경</th>
+            <th class="col-member" data-member="고성진">고성진</th>
+            <th class="col-member" data-member="장휘인">장휘인</th>
+            <th class="col-member" data-member="김도훈">김도훈</th>
+            <th class="col-member" data-member="김구현">김구현</th>
+          </tr>
+        </thead>
+        <tbody id="dutyBody">
+          <!-- JS로 생성 -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- ── 업무 추가/수정 모달 ─────────────────────────── -->
+  <div class="duty-modal-overlay" id="editModal">
+    <div class="duty-modal">
+
+      <div class="duty-modal-header">
+        <span id="modalTitle"><i class="fas fa-pen-to-square"></i> 업무 추가</span>
+        <button class="duty-modal-close" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+
+      <div class="duty-modal-body">
+        <input type="hidden" id="modalRowId"/>
+
+        <!-- 대분류 -->
+        <div class="modal-field">
+          <label class="modal-label"><i class="fas fa-layer-group"></i> 대분류</label>
+          <select id="modalCat1" class="modal-select" onchange="toggleCat1New()"></select>
+          <div id="cat1NewWrap" class="modal-new-wrap" style="display:none;">
+            <input type="text" id="modalCat1New" class="modal-input" placeholder="새 대분류 이름 입력"/>
+          </div>
+        </div>
+
+        <!-- 중분류 -->
+        <div class="modal-field">
+          <label class="modal-label"><i class="fas fa-tag"></i> 중분류</label>
+          <select id="modalCat2" class="modal-select" onchange="toggleCat2New()"></select>
+          <div id="cat2NewWrap" class="modal-new-wrap" style="display:none;">
+            <input type="text" id="modalCat2New" class="modal-input" placeholder="새 중분류 이름 입력"/>
+          </div>
+        </div>
+
+        <!-- 업무 내용 -->
+        <div class="modal-field">
+          <label class="modal-label"><i class="fas fa-file-lines"></i> 업무 내용 <span class="modal-required">*</span></label>
+          <input type="text" id="modalTask" class="modal-input" placeholder="업무 내용을 입력하세요"/>
+        </div>
+
+        <!-- 담당자 설정 (JS로 동적 생성 – rebuildModalMembers()) -->
+        <div class="modal-field">
+          <label class="modal-label"><i class="fas fa-users"></i> 담당자 설정</label>
+          <p class="modal-hint">클릭하여 주담당(●) / 부담당(○) / 없음(−) 순으로 변경</p>
+          <div class="modal-members"><!-- JS가 채움 --></div>
+        </div>
+      </div>
+
+      <div class="duty-modal-footer">
+        <button class="duty-modal-btn btn-cancel" onclick="closeModal()">취소</button>
+        <button class="duty-modal-btn btn-save" onclick="saveModal()"><i class="fas fa-check"></i> 저장</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div class="duty-toast" id="dutyToast"></div>
+
+  <script src="js/members.js"></script>
+  <script src="js/duty.js?v=20260422b"></script>
+</body>
+</html>

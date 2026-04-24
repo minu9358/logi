@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>물류 업무 플로우차트</title>
+  <link rel="stylesheet" href="../css/flow.css?v=20260422"/>
+  <link rel="stylesheet" href="../css/nav.css?v=20260422"/>
+  <link rel="stylesheet" href="../css/shared-header.css?v=20260426"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ── 헤더 ───────────────────────────────────────── -->
+  <header class="gh-header">
+    <div class="gh-inner">
+      <div class="gh-logo">
+        <i class="fas fa-diagram-project gh-logo-icon"></i>
+        <span class="gh-title">물류 업무 플로우차트</span>
+      </div>
+      <div class="gh-divider"></div>
+      <nav class="gh-nav">
+        <a href="../index.html"      class="gh-btn gh-btn-main">  <i class="fas fa-house"></i>            <span>물류 업무</span></a>
+        <a href="../duty.html"       class="gh-btn gh-btn-duty">  <i class="fas fa-list-check"></i>      <span>업무분장</span></a>
+        <a href="../shipment.html"   class="gh-btn gh-btn-ship">  <i class="fas fa-box-open"></i>        <span>출고집계</span></a>
+        <a href="../aggregator.html" class="gh-btn gh-btn-agg">   <i class="fas fa-layer-group"></i>     <span>매핑관리</span></a>
+        <a href="../share.html"      class="gh-btn gh-btn-share"> <i class="fas fa-people-group"></i>    <span>팀원 공유</span></a>
+        <span class="gh-btn gh-btn-flow gh-active">               <i class="fas fa-diagram-project"></i> <span>플로우차트</span></span>
+      
+      </nav>
+      <div class="gh-actions">
+        <button class="gh-btn gh-btn-save"  id="btnSave"><i class="fas fa-floppy-disk"></i>    <span>저장</span></button>
+        <button class="gh-btn gh-btn-print" id="btnHelp"><i class="fas fa-circle-question"></i> <span>도움말</span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── 툴바 ───────────────────────────────────────── -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button class="tool-btn" id="btnFit" title="화면 맞춤 (F)"><i class="fas fa-maximize"></i>화면 맞춤</button>
+      <button class="tool-btn" id="btnZoomIn" title="확대 (+)"><i class="fas fa-magnifying-glass-plus"></i>확대</button>
+      <button class="tool-btn" id="btnZoomOut" title="축소 (-)"><i class="fas fa-magnifying-glass-minus"></i>축소</button>
+      <span class="tool-btn" id="zoomLabel" style="cursor:default;min-width:50px;justify-content:center;">100%</span>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="btnAddNode"><i class="fas fa-circle-plus"></i>노드 추가</button>
+      <button class="tool-btn" id="btnConnect"><i class="fas fa-arrow-right-arrow-left"></i>연결 모드</button>
+      <button class="tool-btn danger" id="btnDeleteSelected"><i class="fas fa-trash"></i>선택 삭제</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="btnUndo" disabled><i class="fas fa-rotate-left"></i>실행 취소</button>
+      <button class="tool-btn" id="btnRedo" disabled><i class="fas fa-rotate-right"></i>다시 실행</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="btnExport"><i class="fas fa-file-export"></i>내보내기</button>
+      <button class="tool-btn" id="btnImport"><i class="fas fa-file-import"></i>불러오기</button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <!-- 범례 -->
+    <div class="toolbar-group legend" id="legendWrap">
+      <span class="leg-item" style="--c:#4ade80">입고</span>
+      <span class="leg-item" style="--c:#c084fc">주문/재고</span>
+      <span class="leg-item" style="--c:#22d3ee">직영/관매장</span>
+      <span class="leg-item" style="--c:#facc15">온라인</span>
+      <span class="leg-item" style="--c:#fb923c">부상판매</span>
+      <span class="leg-item" style="--c:#f87171">폐기</span>
+      <span class="leg-item" style="--c:#eab308">A/S·반품</span>
+      <span class="leg-item" style="--c:#94a3b8">출고 완료</span>
+    </div>
+  </div>
+
+  <!-- ── 앱 본체 ─────────────────────────────────────── -->
+  <div class="app-body">
+
+    <!-- 캔버스 영역 -->
+    <div class="canvas-wrap">
+      <canvas id="flowCanvas"></canvas>
+
+      <!-- 상태바 -->
+      <div class="status-bar">
+        <span id="statusMsg">노드를 클릭하면 상세 정보가 표시됩니다.</span>
+        <span id="zoomStatus"></span>
+      </div>
+
+      <!-- 컨텍스트 메뉴 -->
+      <div class="ctx-menu" id="ctxMenu">
+        <div class="ctx-item" id="ctxEdit"><i class="fas fa-pen"></i> 편집</div>
+        <div class="ctx-item" id="ctxConnect"><i class="fas fa-arrow-right-arrow-left"></i> 연결하기</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item danger" id="ctxDelete"><i class="fas fa-trash"></i> 삭제</div>
+      </div>
+
+      <!-- 인라인 편집 -->
+      <div class="inline-edit hidden" id="inlineEdit">
+        <input type="text" id="inlineInput" placeholder="업무명 입력"/>
+        <button id="inlineConfirm"><i class="fas fa-check"></i></button>
+      </div>
+    </div>
+
+    <!-- 사이드 패널 -->
+    <div class="side-panel" id="sidePanel">
+
+      <!-- 가이드 패널 -->
+      <div class="panel-section" id="panelGuide">
+        <div class="panel-title"><i class="fas fa-circle-info"></i> 사용 방법</div>
+        <ul class="guide-list">
+          <li><i class="fas fa-mouse-pointer"></i><span><b>노드 클릭</b> – 상세 정보 및 편집 패널 열기</span></li>
+          <li><i class="fas fa-hand"></i><span><b>드래그</b> – 노드 이동 / 빈 공간 드래그 → 화면 이동</span></li>
+          <li><i class="fas fa-scroll"></i><span><b>마우스 휠</b> – 확대/축소</span></li>
+          <li><i class="fas fa-i-cursor"></i><span><b>더블클릭</b> – 빠른 이름 편집</span></li>
+          <li><i class="fas fa-right-click"></i><span><b>우클릭</b> – 컨텍스트 메뉴 (편집/연결/삭제)</span></li>
+          <li><i class="fas fa-mobile-screen"></i><span><b>모바일</b> – 두 손가락 핀치로 줌, 한 손가락 드래그로 이동</span></li>
+          <li><i class="fas fa-keyboard"></i><span><b>단축키</b> – <kbd>F</kbd> 화면맞춤 · <kbd>Del</kbd> 삭제 · <kbd>Ctrl+Z</kbd> 되돌리기</span></li>
+        </ul>
+      </div>
+
+      <!-- 노드 편집 패널 -->
+      <div class="panel-section hidden" id="panelNode">
+        <div class="panel-title">
+          <i class="fas fa-pen-to-square"></i> 노드 편집
+          <button class="close-panel" id="btnCloseSide" title="닫기"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="form-group">
+          <label>그룹 <span class="hint">(색상 팔레트와 연동)</span></label>
+          <select id="nodeGroup">
+            <option value="A">입고 프로세스</option>
+            <option value="ORDER">주문/재고 관리</option>
+            <option value="C">직영/관매장 출고</option>
+            <option value="D">온라인 주문</option>
+            <option value="E">부상판매</option>
+            <option value="F">폐기 처리</option>
+            <option value="G">A/S 및 반품</option>
+            <option value="OUT">출고 완료</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>노드 ID <span class="hint">(연결선에 사용)</span></label>
+          <input type="text" id="nodeId" placeholder="예: A-01"/>
+        </div>
+
+        <div class="form-group">
+          <label>업무명 <span class="required">*</span></label>
+          <input type="text" id="nodeLabel" placeholder="업무 이름 입력"/>
+        </div>
+
+        <div class="form-group">
+          <label>색상</label>
+          <div class="color-row">
+            <div>
+              <label>배경색</label>
+              <div class="color-picker-wrap">
+                <input type="color" id="nodeColor" value="#4ade80"/>
+                <span id="nodeColorHex" style="font-size:12px;color:var(--text2);">#4ade80</span>
+              </div>
+            </div>
+            <div>
+              <label>텍스트색</label>
+              <div class="color-picker-wrap">
+                <input type="color" id="nodeTextColor" value="#1a2e1a"/>
+                <span id="nodeTextHex" style="font-size:12px;color:var(--text2);">#1a2e1a</span>
+              </div>
+            </div>
+          </div>
+          <div class="color-presets" id="colorPresets" style="margin-top:8px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label>업무 설명</label>
+          <textarea id="nodeDesc" rows="14" placeholder="업무 설명, 주요 업무, 참고사항 등을 입력하세요." style="min-height:260px;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>연결된 흐름</label>
+          <div class="edge-list" id="connectedEdges"></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary w-full" id="btnApplyNode"><i class="fas fa-check"></i> 변경사항 적용</button>
+          <button class="btn btn-danger w-full mt-sm" id="btnDeleteNode"><i class="fas fa-trash"></i> 이 노드 삭제</button>
+        </div>
+      </div>
+
+      <!-- 연결선 편집 패널 -->
+      <div class="panel-section hidden" id="panelEdge">
+        <div class="panel-title">
+          <i class="fas fa-arrow-right-arrow-left"></i> 연결선 편집
+          <button class="close-panel" id="btnCloseSideEdge" title="닫기"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <div class="edge-info" id="edgeInfo"></div>
+
+        <div class="form-group">
+          <label>라벨 텍스트 <span class="hint">(선 위에 표시)</span></label>
+          <input type="text" id="edgeLabel" placeholder="예: 정보 전달, PDF 전송 등"/>
+        </div>
+
+        <div class="form-group">
+          <label><input type="checkbox" id="edgeBidirectional"/> 양방향 화살표</label>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary w-full" id="btnApplyEdge"><i class="fas fa-check"></i> 변경사항 적용</button>
+          <button class="btn btn-danger w-full mt-sm" id="btnDeleteEdge"><i class="fas fa-trash"></i> 이 연결선 삭제</button>
+        </div>
+      </div>
+
+    </div><!-- /side-panel -->
+  </div><!-- /app-body -->
+
+  <!-- ── 노드 추가 모달 ────────────────────────────── -->
+  <div class="modal-overlay hidden" id="modalAddNode">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-circle-plus"></i> 새 노드 추가</h2>
+        <button class="modal-close" id="btnCloseAddNode"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>그룹</label>
+          <select id="newNodeGroup">
+            <option value="A">입고 프로세스</option>
+            <option value="ORDER">주문/재고 관리</option>
+            <option value="C">직영/관매장 출고</option>
+            <option value="D">온라인 주문</option>
+            <option value="E">부상판매</option>
+            <option value="F">폐기 처리</option>
+            <option value="G">A/S 및 반품</option>
+            <option value="OUT">출고 완료</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>노드 ID <span class="hint">(비워두면 자동 생성)</span></label>
+          <input type="text" id="newNodeId" placeholder="예: A-04"/>
+        </div>
+        <div class="form-group">
+          <label>업무명 <span class="required">*</span></label>
+          <input type="text" id="newNodeLabel" placeholder="업무 이름을 입력하세요"/>
+        </div>
+        <div class="form-group">
+          <label>업무 설명</label>
+          <textarea id="newNodeDesc" rows="4" placeholder="업무 설명, 주요 업무, 참고사항 등"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="btnCancelAddNode">취소</button>
+        <button class="btn btn-primary" id="btnConfirmAddNode"><i class="fas fa-plus"></i> 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── JSON 모달 ──────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="modalJson">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 id="modalJsonTitle"><i class="fas fa-file-code"></i> JSON</h2>
+        <button class="modal-close" id="btnCloseJson"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <textarea id="jsonTextarea" rows="18" style="height:360px;" placeholder="JSON 데이터를 붙여넣으세요..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="btnCloseJson2">닫기</button>
+        <button class="btn btn-outline" id="btnCopyJson"><i class="fas fa-copy"></i> 클립보드 복사</button>
+        <button class="btn btn-primary hidden" id="btnLoadJson"><i class="fas fa-upload"></i> 불러오기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 도움말 모달 ────────────────────────────────── -->
+  <div class="modal-overlay hidden" id="modalHelp">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-circle-question"></i> 도움말</h2>
+        <button class="modal-close" id="btnCloseHelp"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body help-body">
+        <h3><i class="fas fa-mouse"></i> 마우스 조작</h3>
+        <table class="help-table">
+          <tr><td>클릭</td><td>노드/연결선 선택</td></tr>
+          <tr><td>드래그</td><td>노드 이동</td></tr>
+          <tr><td>빈 공간 드래그</td><td>화면 이동 (패닝)</td></tr>
+          <tr><td>마우스 휠</td><td>확대/축소</td></tr>
+          <tr><td>더블클릭</td><td>인라인 이름 편집</td></tr>
+          <tr><td>우클릭</td><td>컨텍스트 메뉴</td></tr>
+        </table>
+        <h3><i class="fas fa-keyboard"></i> 키보드 단축키</h3>
+        <table class="help-table">
+          <tr><td><kbd>F</kbd></td><td>화면 맞춤</td></tr>
+          <tr><td><kbd>Del</kbd> / <kbd>Backspace</kbd></td><td>선택 항목 삭제</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>실행 취소</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>다시 실행</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>저장</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>연결 모드 해제 / 선택 해제</td></tr>
+        </table>
+        <h3><i class="fas fa-mobile"></i> 모바일 제스처</h3>
+        <ul>
+          <li><strong>한 손가락 드래그</strong> – 노드 이동 / 화면 이동</li>
+          <li><strong>두 손가락 핀치</strong> – 확대/축소</li>
+          <li><strong>탭</strong> – 노드 선택</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnCloseHelp2">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 컨테이너 -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- 스크립트 -->
+  <script src="flowData.js"></script>
+  <script src="flowEditor.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
